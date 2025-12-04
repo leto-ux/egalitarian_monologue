@@ -1,0 +1,8 @@
+numpy
+torch
+torchaudio
+pyannote.audio
+diart
+fastapi
+uvicorn
+websockets
