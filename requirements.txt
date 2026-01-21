@@ -1,8 +1,5 @@
-numpy
-torch
-torchaudio
-pyannote.audio
-diart
-fastapi
-uvicorn
-websockets
+flask
+flask-socketio
+python-dotenv
+speechmatics-python
+eventlet

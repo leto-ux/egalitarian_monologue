@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Egalitarian Monologue</title>
+    <style>
+      body { margin: 0; background: #1a1a1a; color: white; display: flex;
+        justify-content: center; align-items: center; height: 100vh;
+        overflow: hidden; font-family: sans-serif; }
+      canvas { border: 1px solid #333; }
+      #info { position: absolute; top: 20px; left: 20px }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <h1>Udziały w rozmowie</h1>
+      <p>Oczekiwanie na dane</p>
+    </div>
+    <canvas id="vizCanvas" width="600" height="600"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="/static/script.js"></script>
+  </body>
+</html>

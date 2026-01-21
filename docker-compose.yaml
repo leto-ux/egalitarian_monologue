@@ -1,0 +1,9 @@
+services:
+  egalitarian-web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app/app
+    environment:
+      - SPEECHMATICS_API_KEY=${SPEECHMATICS_API_KEY}
