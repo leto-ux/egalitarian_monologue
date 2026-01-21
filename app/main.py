@@ -1,18 +1,18 @@
 import asyncio
-import threading
 import os
+# --- For mock tests --- #
+import random
+import threading
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO
 
 # Speechmatics imports
-# from speechmatics.rt import Microphone
-# from speechmatics.voice import (AgentServerMessageType, VoiceAgentClient,
-                                # VoiceAgentConfigPreset)
+from speechmatics.rt import Microphone
+from speechmatics.voice import (AgentServerMessageType, VoiceAgentClient,
+                                VoiceAgentConfigPreset)
 
-# --- For mock tests --- #
-import random
 MOCK_SPEAKERS = [ "S1", "S2", "S3", "S4" ]
 # --- --- ------ --- --- #
 
@@ -40,46 +40,46 @@ def update_and_emit( speaker_id ):
     # Send data to all connected clients
     socketio.emit( 'stats_update', stats )
 
-# async def speechmatics_task():
-#     """Main Speechmatics asynchronous loop"""
-#     client = VoiceAgentClient(
-#         api_key=os.getenv("SPEECHMATICS_API_KEY"),
-#         config=VoiceAgentConfigPreset.load("adaptive")
-#     )
-#
-#     @client.on(AgentServerMessageType.ADD_SEGMENT)
-#     def on_segment(message):
-#         for segment in message.get("segments", []):
-#             speaker_id = segment.get( 'speaker_id', 'S1' )
-#             text = segment.get( 'text', '' )
-#             print( f"[{ speaker_id }]: { text }" )
-#
-#             # Send info to socket
-#             update_and_emit( speaker_id )
-#
-#     @client.on(AgentServerMessageType.END_OF_TURN)
-#     def on_turn_end(message):
-#         print("[END OF TURN]")
-#
-#     mic = Microphone(sample_rate=16000, chunk_size=320)
-#     mic.start()
-#
-#     try:
-#         await client.connect()
-#         print("Voice agent ready. Speak now...")
-#
-#         while True:
-#             audio_chunk = await mic.read( 320 )
-#             await client.send_audio( audio_chunk )
-#             # Small pause
-#             await asyncio.sleep( 0 )
-#     except Exception as e:
-#         print( f"Błąd synchronizacji: {e}" )
-#
-#     finally:
-#         mic.stop()
-#         await client.disconnect()
-#
+async def speechmatics_task():
+    """Main Speechmatics asynchronous loop"""
+    client = VoiceAgentClient(
+        api_key=os.getenv("SPEECHMATICS_API_KEY"),
+        config=VoiceAgentConfigPreset.load("adaptive")
+    )
+
+    @client.on(AgentServerMessageType.ADD_SEGMENT)
+    def on_segment(message):
+        for segment in message.get("segments", []):
+            speaker_id = segment.get( 'speaker_id', 'S1' )
+            text = segment.get( 'text', '' )
+            print( f"[{ speaker_id }]: { text }" )
+
+            # Send info to socket
+            update_and_emit( speaker_id )
+
+    @client.on(AgentServerMessageType.END_OF_TURN)
+    def on_turn_end(message):
+        print("[END OF TURN]")
+
+    mic = Microphone(sample_rate=16000, chunk_size=320)
+    mic.start()
+
+    try:
+        await client.connect()
+        print("Voice agent ready. Speak now...")
+
+        while True:
+            audio_chunk = await mic.read( 320 )
+            await client.send_audio( audio_chunk )
+            # Small pause
+            await asyncio.sleep( 0 )
+    except Exception as e:
+        print( f"Błąd synchronizacji: {e}" )
+
+    finally:
+        mic.stop()
+        await client.disconnect()
+
 def mock_speechmatics_simulation():
     """Mock function since Mr. Rustyman didnt share his api key"""
     print( "MOCK SIMULATION" )
@@ -99,16 +99,16 @@ def mock_speechmatics_simulation():
         socketio.sleep( random.uniform( 0.5, 1.5 ) )
 
 
-# def start_async_loop():
-#     """Starts asyncio loop in another thread"""
-#     loop = asyncio.new_event_loop()
-#     asyncio.set_event_loop( loop )
-#     loop.run_until_complete( speechmatics_task() )
+def start_async_loop():
+    """Starts asyncio loop in another thread"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop( loop )
+    loop.run_until_complete( speechmatics_task() )
 
 if __name__ == '__main__':
     # Start thread with microphone and Speechmatics
-    # sm_thread = threading.Thread( target=start_async_loop, daemon=True )
-    sm_thread = threading.Thread( target=mock_speechmatics_simulation, daemon=True )  # mock sim
+    sm_thread = threading.Thread( target=start_async_loop, daemon=True )
+    # sm_thread = threading.Thread( target=mock_speechmatics_simulation, daemon=True )  # mock sim
 
     sm_thread.start()
 
